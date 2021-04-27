@@ -7,8 +7,10 @@ app.use(express.json());
 
 const cRoutes = require("./routes/companies");
 const iRoutes = require("./routes/invoices");
+const industriesRoutes = require("./routes/industries");
 app.use("/companies", cRoutes);
 app.use("/invoices", iRoutes);
+app.use("/industries", industriesRoutes);
 
 /** 404 handler */
 app.use(function(req, res, next) {
