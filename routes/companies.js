@@ -15,16 +15,26 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:code', async (req, res, next) => {
     try {
-        const { code } = req.params;
-        const results = await db.query('SELECT * FROM companies WHERE code = $1', [code]);
-        if (results.rows.length === 0) {
-            throw new ExpressError(`Can't find user with code of ${code}`, 404)
-        }
-        return res.send({ company: results.rows[0] })
-    } catch(e) {
-        return next(e)
+      const companies = await db.query(
+        `
+          SELECT c.code, c.name, c.description, i.industry FROM companies AS c
+          LEFT JOIN industries_companies AS ic
+          ON c.code = ic.comp_code
+          LEFT JOIN industries AS i ON i.code = ic.industry_code
+          WHERE c.code = $1`,
+        [req.params.code]
+      );
+      if (companies.rows.length === 0) {
+        throw new ExpressError(
+          `Cannot find company with code ${req.params.code}`,
+          404
+        );
+      }
+      return res.json(companies.rows);
+    } catch (err) {
+      next(err);
     }
-});
+  });
 
 router.post('/', async (req, res, next) => {
     try {

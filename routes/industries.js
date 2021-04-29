@@ -4,6 +4,7 @@ const ExpressError = require('../expressError');
 let router = new express.Router();
 const db = require('../db');
 
+// ADD INDUSTRY
 router.post('/', async (req, res, next) => {
     try {
       const { industry } = req.body;
@@ -17,5 +18,22 @@ router.post('/', async (req, res, next) => {
       return next(err);
     }
 });
+
+// LIST INDUSTRIES
+router.get('/:code', async (req, res, next) => {
+  try {
+    const industries = await db.query(`
+      SELECT i.code, i.industry, c.code FROM industries AS i
+      LEFT JOIN industries_companies AS ic
+      ON i.code = ic.industry_code
+      LEFT JOIN companies AS c ON c.code = ic.comp_code`);
+      return res.json(industries.rows);
+  } catch(e) {
+    return next(e);
+  }
+});
+
+
+// ADD INDUSTRY TO COMPANY
 
 module.exports = router;
